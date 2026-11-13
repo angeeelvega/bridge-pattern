@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>co.edu.unisabana</groupId>
-    <artifactId>bridge</artifactId>
+    <artifactId>bridge-pattern</artifactId>
     <version>1.0.0</version>
-    <name>Bridge</name>
+    <name>Bridge pattern</name>
     <description>Structural Bridge pattern for notifications rendered on desktop, mobile, and web (Java 21).</description>
 
     <properties>

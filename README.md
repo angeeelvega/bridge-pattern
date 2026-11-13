@@ -47,49 +47,11 @@ The type chooses urgency, mode, and actions. The channel turns that contract int
 
 ## Class diagram
 
-```mermaid
-classDiagram
-    class Notification {
-        <<Abstraction>>
-        -content NotificationContent
-        -channel PresentationChannel
-        +display() Presentation
-        +changeChannel(PresentationChannel)
-        #prepare(NotificationContent) PresentationRequest
-    }
-    class MessageNotification
-    class AlertNotification
-    class WarningNotification
-    class ConfirmationNotification
-    class PresentationChannel {
-        <<Implementor>>
-        +present(PresentationRequest) Presentation
-        +name() String
-        #formatFor(InteractionMode) String
-    }
-    class DesktopChannel
-    class MobileChannel
-    class WebChannel
-    class PresentationRequest {
-        <<record>>
-        +type
-        +urgency
-        +mode
-        +body
-        +actions
-    }
+`Notification` is the abstraction. `PresentationChannel` is the implementor. The aggregation between them is the bridge: one notification keeps one channel, and `changeChannel` replaces it at runtime. `PresentationRequest` is the only contract that crosses that link.
 
-    Notification <|-- MessageNotification
-    Notification <|-- AlertNotification
-    Notification <|-- WarningNotification
-    Notification <|-- ConfirmationNotification
-    Notification o--> PresentationChannel : bridge
-    Notification ..> PresentationRequest : produces
-    PresentationChannel <|-- DesktopChannel
-    PresentationChannel <|-- MobileChannel
-    PresentationChannel <|-- WebChannel
-    PresentationChannel ..> PresentationRequest : consumes
-```
+![Bridge class diagram](docs/class-diagram.svg)
+
+Source: [`docs/class-diagram.puml`](docs/class-diagram.puml). A PNG copy is at [`docs/class-diagram.png`](docs/class-diagram.png).
 
 ## Layout
 
