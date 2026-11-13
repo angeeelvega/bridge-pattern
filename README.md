@@ -51,7 +51,7 @@ The type chooses urgency, mode, and actions. The channel turns that contract int
 
 ![Bridge class diagram](docs/class-diagram.svg)
 
-Source: [`docs/class-diagram.dot`](docs/class-diagram.dot). A PNG copy is at [`docs/class-diagram.png`](docs/class-diagram.png).
+Source: [`docs/class-diagram.dot`](docs/class-diagram.dot). A PNG copy is at [`docs/class-diagram.png`](docs/class-diagram.png). Open [`docs/behavior.html`](docs/behavior.html) to play a type through the bridge.
 
 ## Layout
 

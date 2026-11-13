@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bridge pattern — behavior</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #161616;
+      --line: #2a2a2a;
+      --muted: #5c5c5c;
+      --paper: #ffffff;
+      --card: #f4f4f4;
+      --abstract: #e7e7e7;
+      --active: #111111;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Helvetica, Arial, sans-serif;
+    }
+
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 20px 48px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      font-weight: 650;
+    }
+
+    .lede {
+      margin: 0 0 18px;
+      color: var(--muted);
+      max-width: 62ch;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .controls span {
+      font-size: 13px;
+      color: var(--muted);
+      margin-right: 4px;
+    }
+
+    button.choice {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    button.choice[aria-pressed="true"] {
+      background: var(--ink);
+      color: var(--paper);
+    }
+
+    .status {
+      min-height: 1.4em;
+      margin: 0 0 16px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+    }
+
+    .stage-wrap {
+      overflow: hidden;
+    }
+
+    .stage {
+      position: relative;
+      width: 1280px;
+      height: 820px;
+    }
+
+    svg.wires {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .node {
+      position: absolute;
+      width: 210px;
+      margin: 0;
+      padding: 10px 12px;
+      border: 1.5px solid var(--line);
+      background: var(--card);
+      text-align: left;
+      font: inherit;
+      color: inherit;
+      cursor: default;
+    }
+
+    button.node { cursor: pointer; }
+
+    .node strong { display: block; font-size: 14px; }
+    .node small { display: block; color: var(--muted); font-size: 11px; font-style: italic; margin-bottom: 4px; }
+    .node code { display: block; font-size: 11px; line-height: 1.35; white-space: pre-wrap; }
+
+    .node.abstract { background: var(--abstract); width: 250px; }
+    .node.abstract strong { font-style: italic; }
+    .node.record { width: 230px; background: var(--paper); }
+
+    .node.active {
+      background: var(--paper);
+      box-shadow: inset 0 0 0 2px var(--active);
+    }
+
+    #notification { left: 20px; top: 250px; }
+    #message { left: 390px; top: 24px; }
+    #alert { left: 390px; top: 196px; }
+    #warning { left: 390px; top: 368px; }
+    #confirmation { left: 390px; top: 540px; }
+    #channel { left: 700px; top: 250px; }
+    #desktop { left: 1040px; top: 80px; width: 190px; }
+    #mobile { left: 1040px; top: 250px; width: 190px; }
+    #web { left: 1040px; top: 420px; width: 190px; }
+    #content { left: 20px; top: 620px; }
+    #request { left: 300px; top: 600px; }
+    #result { left: 700px; top: 590px; }
+
+    .token {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 14px;
+      height: 14px;
+      margin: -7px 0 0 -7px;
+      border-radius: 50%;
+      background: var(--ink);
+      offset-rotate: 0deg;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .preview {
+      margin-top: 18px;
+      min-height: 140px;
+    }
+
+    .mock {
+      max-width: 420px;
+      border: 1.5px solid var(--line);
+      padding: 14px 16px;
+      background: var(--paper);
+    }
+
+    .mock p { margin: 6px 0; }
+    .mock .meta { color: var(--muted); font-size: 12px; margin: 0; }
+    .actions { display: flex; gap: 8px; margin-top: 10px; }
+    .actions span {
+      border: 1px solid var(--line);
+      padding: 6px 10px;
+      font-size: 13px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .token { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Bridge pattern</h1>
+    <p class="lede">Press a notification type. The dot follows <code>display()</code>: the type prepares a request, the selected channel renders it, and a presentation comes back.</p>
+    <div class="controls">
+      <span>Channel</span>
+      <button class="choice" type="button" data-channel="desktop" aria-pressed="false">Desktop</button>
+      <button class="choice" type="button" data-channel="mobile" aria-pressed="false">Mobile</button>
+      <button class="choice" type="button" data-channel="web" aria-pressed="true">Web</button>
+    </div>
+    <p class="status" id="status" role="status">Choose a type on the diagram.</p>
+    <div class="stage-wrap">
+      <div class="stage" id="stage">
+        <svg class="wires" id="wires" aria-hidden="true"></svg>
+        <button class="node abstract" id="notification" type="button" disabled>
+          <small>«Abstraction»</small>
+          <strong>Notification</strong>
+          <code>display()
+changeChannel()</code>
+        </button>
+        <button class="node" id="message" type="button" data-type="message">
+          <small>«RefinedAbstraction»</small>
+          <strong>MessageNotification</strong>
+          <code>TYPE = "message"</code>
+        </button>
+        <button class="node" id="alert" type="button" data-type="alert">
+          <small>«RefinedAbstraction»</small>
+          <strong>AlertNotification</strong>
+          <code>TYPE = "alert"</code>
+        </button>
+        <button class="node" id="warning" type="button" data-type="warning">
+          <small>«RefinedAbstraction»</small>
+          <strong>WarningNotification</strong>
+          <code>TYPE = "warning"</code>
+        </button>
+        <button class="node" id="confirmation" type="button" data-type="confirmation">
+          <small>«RefinedAbstraction»</small>
+          <strong>ConfirmationNotification</strong>
+          <code>TYPE = "confirmation"</code>
+        </button>
+        <button class="node abstract" id="channel" type="button" disabled>
+          <small>«Implementor»</small>
+          <strong>PresentationChannel</strong>
+          <code>present(request)</code>
+        </button>
+        <button class="node" id="desktop" type="button" data-channel="desktop">
+          <small>«ConcreteImplementor»</small>
+          <strong>DesktopChannel</strong>
+        </button>
+        <button class="node" id="mobile" type="button" data-channel="mobile">
+          <small>«ConcreteImplementor»</small>
+          <strong>MobileChannel</strong>
+        </button>
+        <button class="node" id="web" type="button" data-channel="web">
+          <small>«ConcreteImplementor»</small>
+          <strong>WebChannel</strong>
+        </button>
+        <div class="node record" id="content">
+          <small>«record»</small>
+          <strong>NotificationContent</strong>
+          <code id="content-body">title, message, recipient</code>
+        </div>
+        <div class="node record" id="request">
+          <small>«record»</small>
+          <strong>PresentationRequest</strong>
+          <code id="request-body">type, urgency, mode, body, actions</code>
+        </div>
+        <div class="node record" id="result">
+          <small>«record»</small>
+          <strong>Presentation</strong>
+          <code id="result-body">channel, format, rendered</code>
+        </div>
+        <div class="token" id="token" hidden></div>
+      </div>
+    </div>
+    <div class="preview" id="preview" hidden>
+      <article class="mock">
+        <p class="meta" id="preview-meta"></p>
+        <p id="preview-title"><strong></strong></p>
+        <p id="preview-body"></p>
+        <div class="actions" id="preview-actions"></div>
+      </article>
+    </div>
+  </main>
+  <script>
+    const content = {
+      title: "Scheduled maintenance",
+      message: "The academic service will be unavailable tonight between 11 p.m. and 1 a.m. Save your work before then.",
+      recipient: "students@unisabana.edu.co"
+    };
+
+    const types = {
+      message: {
+        name: "MessageNotification",
+        type: "message",
+        urgency: "low",
+        mode: "informative",
+        actions: [],
+        body: (message) => message
+      },
+      alert: {
+        name: "AlertNotification",
+        type: "alert",
+        urgency: "high",
+        mode: "persistent",
+        actions: [],
+        body: (message) => message + " This alert stays visible until it is addressed."
+      },
+      warning: {
+        name: "WarningNotification",
+        type: "warning",
+        urgency: "medium",
+        mode: "persistent",
+        actions: ["Got it"],
+        body: (message) => message + " Review the consequences before you continue."
+      },
+      confirmation: {
+        name: "ConfirmationNotification",
+        type: "confirmation",
+        urgency: "medium",
+        mode: "blocking",
+        actions: ["Accept", "Cancel"],
+        body: (message) => message
+      }
+    };
+
+    const formats = {
+      desktop: { informative: "toast", persistent: "notification-center", blocking: "dialog" },
+      mobile: { informative: "push", persistent: "pinned-push", blocking: "action-sheet" },
+      web: { informative: "toast", persistent: "banner", blocking: "modal" }
+    };
+
+    const stage = document.querySelector("#stage");
+    const wires = document.querySelector("#wires");
+    const token = document.querySelector("#token");
+    const status = document.querySelector("#status");
+    const preview = document.querySelector("#preview");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let channel = "web";
+    let runId = 0;
+
+    document.querySelectorAll("[data-channel]").forEach((button) => {
+      button.addEventListener("click", () => {
+        channel = button.dataset.channel;
+        document.querySelectorAll(".choice").forEach((choice) => {
+          choice.setAttribute("aria-pressed", String(choice.dataset.channel === channel));
+        });
+        draw();
+      });
+    });
+
+    document.querySelectorAll("[data-type]").forEach((button) => {
+      button.addEventListener("click", () => play(button.dataset.type));
+    });
+
+    window.addEventListener("resize", () => {
+      fit();
+      draw();
+    });
+    fit();
+    draw();
+
+    function fit() {
+      const wrap = document.querySelector(".stage-wrap");
+      const scale = Math.min(1, wrap.clientWidth / stage.offsetWidth);
+      stage.style.transform = "scale(" + scale + ")";
+      stage.style.transformOrigin = "top left";
+      wrap.style.height = Math.ceil(stage.offsetHeight * scale) + "px";
+    }
+
+    function box(id) {
+      const node = document.getElementById(id);
+      return {
+        left: node.offsetLeft,
+        top: node.offsetTop,
+        right: node.offsetLeft + node.offsetWidth,
+        bottom: node.offsetTop + node.offsetHeight,
+        cx: node.offsetLeft + node.offsetWidth / 2,
+        cy: node.offsetTop + node.offsetHeight / 2
+      };
+    }
+
+    function line(x1, y1, x2, y2, dashed) {
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      const mid = x1 + (x2 - x1) / 2;
+      path.setAttribute("d", "M " + x1 + " " + y1 + " L " + mid + " " + y1 + " L " + mid + " " + y2 + " L " + x2 + " " + y2);
+      path.setAttribute("fill", "none");
+      path.setAttribute("stroke", "#2a2a2a");
+      path.setAttribute("stroke-width", "1.5");
+      if (dashed) path.setAttribute("stroke-dasharray", "5 5");
+      return path;
+    }
+
+    function draw() {
+      wires.replaceChildren();
+      wires.setAttribute("viewBox", "0 0 " + stage.offsetWidth + " " + stage.offsetHeight);
+      const notification = box("notification");
+      const channelBox = box("channel");
+      ["message", "alert", "warning", "confirmation"].forEach((id) => {
+        const child = box(id);
+        wires.append(line(notification.right, notification.cy, child.left, child.cy, false));
+      });
+      wires.append(line(notification.right, notification.cy, channelBox.left, channelBox.cy, false));
+      ["desktop", "mobile", "web"].forEach((id) => {
+        const child = box(id);
+        wires.append(line(channelBox.right, channelBox.cy, child.left, child.cy, false));
+      });
+      const contentBox = box("content");
+      const request = box("request");
+      const result = box("result");
+      wires.append(line(notification.cx, notification.bottom, contentBox.cx, contentBox.top, false));
+      wires.append(line(notification.cx, notification.bottom, request.cx, request.top, true));
+      wires.append(line(channelBox.cx, channelBox.bottom, result.cx, result.top, true));
+    }
+
+    function clearActive() {
+      document.querySelectorAll(".node").forEach((node) => node.classList.remove("active"));
+    }
+
+    function wait(ms) {
+      return new Promise((resolve) => setTimeout(resolve, reduceMotion ? 0 : ms));
+    }
+
+    async function travel(fromId, toId) {
+      const from = box(fromId);
+      const to = box(toId);
+      const midX = from.cx + (to.cx - from.cx) / 2;
+      const points = [
+        [from.cx, from.cy],
+        [midX, from.cy],
+        [midX, to.cy],
+        [to.cx, to.cy]
+      ];
+      token.hidden = false;
+      token.style.opacity = "1";
+      const animation = token.animate(
+        points.map(([x, y]) => ({ transform: "translate(" + x + "px, " + y + "px)" })),
+        { duration: reduceMotion ? 0 : 850, easing: "ease-in-out", fill: "forwards" }
+      );
+      await animation.finished;
+    }
+
+    function truncate(text) {
+      if (channel !== "mobile" || text.length <= 80) return text;
+      return text.slice(0, 79) + "…";
+    }
+
+    function showPreview(spec, format, body) {
+      preview.hidden = false;
+      document.querySelector("#preview-meta").textContent = channel + " · " + format + " · " + spec.urgency;
+      document.querySelector("#preview-title").textContent = content.title;
+      document.querySelector("#preview-body").textContent = body;
+      const actions = document.querySelector("#preview-actions");
+      actions.replaceChildren();
+      spec.actions.forEach((action) => {
+        const chip = document.createElement("span");
+        chip.textContent = action;
+        actions.append(chip);
+      });
+    }
+
+    async function play(typeId) {
+      const id = ++runId;
+      const spec = types[typeId];
+      const format = formats[channel][spec.mode];
+      const fullBody = spec.body(content.message);
+      const visibleBody = truncate(fullBody);
+      clearActive();
+      preview.hidden = true;
+      document.querySelector("#request-body").textContent = "type, urgency, mode, body, actions";
+      document.querySelector("#result-body").textContent = "channel, format, rendered";
+      document.querySelector("#content-body").textContent = content.title;
+
+      status.textContent = "new " + spec.name + "(content, new " + channelName() + "()).display()";
+      document.getElementById(typeId).classList.add("active");
+      if (id !== runId) return;
+      await travel(typeId, "request");
+      if (id !== runId) return;
+      document.getElementById("request").classList.add("active");
+      document.querySelector("#request-body").textContent =
+        spec.type + "\n" + spec.urgency + " · " + spec.mode + "\nactions: " + (spec.actions.join(", ") || "(none)");
+      status.textContent = "prepare() builds the request";
+      await wait(500);
+      if (id !== runId) return;
+
+      document.getElementById("notification").classList.add("active");
+      await travel("request", "channel");
+      if (id !== runId) return;
+      document.getElementById("channel").classList.add("active");
+      document.getElementById(channel).classList.add("active");
+      status.textContent = "present() on " + channelName();
+      await wait(400);
+      if (id !== runId) return;
+
+      await travel("channel", "result");
+      if (id !== runId) return;
+      document.getElementById("result").classList.add("active");
+      document.querySelector("#result-body").textContent = channel + "\n" + format;
+      showPreview(spec, format, visibleBody);
+      status.textContent = "Presentation returned: " + format;
+    }
+
+    function channelName() {
+      if (channel === "desktop") return "DesktopChannel";
+      if (channel === "mobile") return "MobileChannel";
+      return "WebChannel";
+    }
+  </script>
+</body>
+</html>
