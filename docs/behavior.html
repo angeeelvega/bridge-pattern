@@ -11,9 +11,10 @@
       --line: #2a2a2a;
       --muted: #5c5c5c;
       --paper: #ffffff;
-      --card: #f4f4f4;
-      --abstract: #e7e7e7;
-      --active: #111111;
+      --card: #ffffff;
+      --aside: #9a9a9a;
+      --accent: #0b57d0;
+      --accent-soft: #e8f0fe;
     }
 
     * { box-sizing: border-box; }
@@ -58,6 +59,9 @@
     }
 
     button.choice {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       border: 1px solid var(--line);
       background: var(--paper);
       color: var(--ink);
@@ -67,6 +71,9 @@
       cursor: pointer;
     }
 
+    .mark { display: inline-flex; flex: none; }
+    .mark svg { width: 18px; height: 18px; display: block; }
+
     button.choice[aria-pressed="true"] {
       background: var(--ink);
       color: var(--paper);
@@ -74,19 +81,53 @@
 
     .status {
       min-height: 1.4em;
-      margin: 0 0 16px;
+      margin: 0 0 10px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 13px;
     }
 
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin: 0 0 16px;
+      padding: 0;
+      list-style: none;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .legend li {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .swatch {
+      width: 14px;
+      height: 14px;
+      border: 1.5px solid var(--line);
+      background: var(--paper);
+    }
+
+    .swatch.used { border-color: var(--accent); background: var(--accent-soft); }
+    .swatch.aside { border-color: #d5d5d5; background: #f7f7f7; opacity: 0.55; }
+    .swatch.here { border-color: var(--accent); background: var(--accent); }
+
     .stage-wrap {
-      overflow: hidden;
+      overflow-x: auto;
     }
 
     .stage {
       position: relative;
-      width: 1280px;
-      height: 820px;
+      display: grid;
+      width: 100%;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 0.9fr);
+      grid-template-rows: auto auto auto auto auto;
+      column-gap: clamp(16px, 3vw, 72px);
+      row-gap: clamp(12px, 2vw, 32px);
+      align-items: center;
+      justify-items: center;
     }
 
     svg.wires {
@@ -97,11 +138,21 @@
       pointer-events: none;
     }
 
+    svg.wires path {
+      fill: none;
+      stroke: var(--line);
+      stroke-width: 1.5;
+    }
+
+    svg.wires path.wire-off { stroke: #d5d5d5; }
+    svg.wires path.wire-on { stroke: var(--accent); stroke-width: 2.25; }
+
     .node {
-      position: absolute;
-      width: 210px;
+      position: relative;
+      z-index: 1;
+      width: min(100%, 250px);
       margin: 0;
-      padding: 10px 12px;
+      padding: clamp(8px, 1vw, 12px);
       border: 1.5px solid var(--line);
       background: var(--card);
       text-align: left;
@@ -111,32 +162,56 @@
     }
 
     button.node { cursor: pointer; }
+    .node:focus { outline: none; }
+    .node:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
-    .node strong { display: block; font-size: 14px; }
-    .node small { display: block; color: var(--muted); font-size: 11px; font-style: italic; margin-bottom: 4px; }
-    .node code { display: block; font-size: 11px; line-height: 1.35; white-space: pre-wrap; }
+    .node strong { display: flex; align-items: center; gap: 6px; font-size: clamp(11px, 1.4vw, 14px); overflow-wrap: anywhere; }
+    .node .mark svg { width: 16px; height: 16px; }
+    .node small { display: block; color: var(--muted); font-size: clamp(9px, 1.1vw, 11px); font-style: italic; margin-bottom: 4px; }
+    .node code { display: block; font-size: clamp(9px, 1.1vw, 11px); line-height: 1.35; white-space: pre-wrap; overflow-wrap: anywhere; }
 
-    .node.abstract { background: var(--abstract); width: 250px; }
+    .node.abstract { width: min(100%, 270px); }
     .node.abstract strong { font-style: italic; }
-    .node.record { width: 230px; background: var(--paper); }
+    .node.record { width: min(100%, 240px); }
 
-    .node.active {
-      background: var(--paper);
-      box-shadow: inset 0 0 0 2px var(--active);
+    .node.is-aside {
+      border-color: #d5d5d5;
+      background: #f7f7f7;
+      color: var(--aside);
+      opacity: 0.38;
     }
 
-    #notification { left: 20px; top: 250px; }
-    #message { left: 390px; top: 24px; }
-    #alert { left: 390px; top: 196px; }
-    #warning { left: 390px; top: 368px; }
-    #confirmation { left: 390px; top: 540px; }
-    #channel { left: 700px; top: 250px; }
-    #desktop { left: 1040px; top: 80px; width: 190px; }
-    #mobile { left: 1040px; top: 250px; width: 190px; }
-    #web { left: 1040px; top: 420px; width: 190px; }
-    #content { left: 20px; top: 620px; }
-    #request { left: 300px; top: 600px; }
-    #result { left: 700px; top: 590px; }
+    .node.is-aside small,
+    .node.is-aside code { color: var(--aside); }
+
+    .node.is-used {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      opacity: 1;
+    }
+
+    .node.is-here {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+      opacity: 1;
+    }
+
+    .node.is-here small,
+    .node.is-here code { color: #fff; }
+
+    #notification { grid-column: 1; grid-row: 2 / span 2; }
+    #message { grid-column: 2; grid-row: 1; }
+    #alert { grid-column: 2; grid-row: 2; }
+    #warning { grid-column: 2; grid-row: 3; }
+    #confirmation { grid-column: 2; grid-row: 4; }
+    #channel { grid-column: 3; grid-row: 2 / span 2; }
+    #desktop { grid-column: 4; grid-row: 1; }
+    #mobile { grid-column: 4; grid-row: 2 / span 2; }
+    #web { grid-column: 4; grid-row: 4; }
+    #content { grid-column: 1; grid-row: 5; }
+    #request { grid-column: 2; grid-row: 5; }
+    #result { grid-column: 3; grid-row: 5; }
 
     .token {
       position: absolute;
@@ -146,42 +221,222 @@
       height: 14px;
       margin: -7px 0 0 -7px;
       border-radius: 50%;
-      background: var(--ink);
-      offset-rotate: 0deg;
+      background: var(--accent);
+      box-shadow: 0 0 0 3px #fff;
+      z-index: 4;
       opacity: 0;
       pointer-events: none;
     }
 
-    .preview {
-      margin-top: 18px;
-      min-height: 140px;
+    .preview { margin-top: 8px; }
+    .preview[hidden] { display: none; }
+
+    .device { margin: 0; }
+    .device figcaption {
+      margin-top: 8px;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
     }
 
-    .mock {
-      max-width: 420px;
-      border: 1.5px solid var(--line);
-      padding: 14px 16px;
-      background: var(--paper);
+    .bezel {
+      width: 260px;
+      height: 500px;
+      padding: 10px;
+      border-radius: 36px;
+      background: #1c1c1e;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
     }
 
-    .mock p { margin: 6px 0; }
-    .mock .meta { color: var(--muted); font-size: 12px; margin: 0; }
+    .device-mobile .screen {
+      position: relative;
+      height: 100%;
+      overflow: hidden;
+      border-radius: 26px;
+      background: linear-gradient(#d5e2f4, #f4f1ea 46%, #f7f7f5);
+    }
+
+    .island {
+      width: 92px;
+      height: 18px;
+      margin: 8px auto 16px;
+      border-radius: 20px;
+      background: #1c1c1e;
+    }
+
+    .home {
+      position: absolute;
+      left: 50%;
+      bottom: 8px;
+      width: 96px;
+      height: 4px;
+      margin-left: -48px;
+      border-radius: 4px;
+      background: #1c1c1e;
+      opacity: 0.35;
+    }
+
+    .notice, .dialog, .banner, .sheet {
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.94);
+    }
+
+    .notice {
+      margin: 0 12px;
+      padding: 12px;
+      border-radius: 16px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .notice[data-urgency="high"], .banner[data-urgency="high"], .dialog[data-urgency="high"], .sheet[data-urgency="high"] { box-shadow: inset 3px 0 0 #b42318, 0 10px 24px rgba(0, 0, 0, 0.12); }
+    .notice[data-urgency="medium"], .banner[data-urgency="medium"], .dialog[data-urgency="medium"], .sheet[data-urgency="medium"] { box-shadow: inset 3px 0 0 #b54708, 0 10px 24px rgba(0, 0, 0, 0.12); }
+    .notice[data-urgency="low"], .banner[data-urgency="low"], .dialog[data-urgency="low"], .sheet[data-urgency="low"] { box-shadow: inset 3px 0 0 #175cd3, 0 10px 24px rgba(0, 0, 0, 0.12); }
+
+    .notice-top, .menu-bar, .chrome {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .notice-top { color: var(--muted); font-size: 11px; }
+    .when { margin-left: auto; }
+    .pinned .when { color: var(--accent); font-weight: 650; }
+    .app-icon {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      display: inline-grid;
+      place-items: center;
+    }
+
+    .notice strong, .dialog strong, .banner strong, .sheet strong { display: block; margin-top: 6px; font-size: 14px; }
+    .notice p, .dialog p, .banner p, .sheet p { margin: 4px 0 0; font-size: 13px; line-height: 1.35; }
+    .toast p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
     .actions { display: flex; gap: 8px; margin-top: 10px; }
-    .actions span {
-      border: 1px solid var(--line);
-      padding: 6px 10px;
+    .actions.stack { flex-direction: column; }
+    .action {
+      display: inline-flex;
+      justify-content: center;
+      border: 1px solid #d0d0d0;
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: #fff;
       font-size: 13px;
     }
+    .action.primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .actions.stack .action { width: 100%; }
+
+    .scrim { position: absolute; inset: 0; background: rgba(20, 20, 20, 0.38); }
+    .sheet, .dialog { position: absolute; z-index: 2; }
+    .sheet { left: 8px; right: 8px; bottom: 18px; padding: 16px; border-radius: 16px; }
+    .dialog {
+      left: 50%;
+      top: 50%;
+      width: min(280px, 86%);
+      padding: 16px;
+      border-radius: 12px;
+      transform: translate(-50%, -50%);
+    }
+
+    .desktop { width: min(560px, 100%); }
+    .monitor { padding: 10px; border-radius: 12px; background: #1c1c1e; }
+    .device-desktop .screen {
+      position: relative;
+      height: 300px;
+      overflow: hidden;
+      border-radius: 4px;
+      background: linear-gradient(#8eb4d6, #d7e6f2);
+    }
+    .menu-bar {
+      position: absolute;
+      z-index: 2;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 28px;
+      justify-content: space-between;
+      padding: 0 10px;
+      background: rgba(255, 255, 255, 0.72);
+      font-size: 11px;
+    }
+    .wallpaper { position: absolute; inset: 28px 0 0; }
+    .window {
+      position: absolute;
+      left: 18px;
+      top: 16px;
+      width: 190px;
+      height: 120px;
+      border-radius: 6px;
+      background: #fff;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+    }
+    .window.small { left: 46px; top: 78px; width: 150px; height: 90px; }
+    .toast { position: absolute; z-index: 2; top: 40px; right: 12px; width: 240px; margin: 0; }
+    .device-web .toast { top: auto; bottom: 12px; }
+    .center {
+      position: absolute;
+      z-index: 2;
+      top: 28px;
+      right: 0;
+      bottom: 0;
+      width: 250px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.82);
+      border-left: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    .center-label { margin: 0 0 8px; color: var(--muted); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; }
+    .center .notice { margin: 0; }
+    .neck { width: 72px; height: 16px; margin: 0 auto; background: #c8c8c8; }
+    .base { width: 150px; height: 8px; margin: 0 auto; border-radius: 0 0 8px 8px; background: #b0b0b0; }
+
+    .browser {
+      width: min(560px, 100%);
+      overflow: hidden;
+      border: 1.5px solid #d5d5d5;
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08);
+    }
+    .chrome { height: 38px; padding: 0 10px; background: #ececec; border-bottom: 1px solid #ddd; }
+    .dots { display: inline-flex; gap: 4px; }
+    .dots i { width: 8px; height: 8px; border-radius: 50%; background: #ccc; }
+    .dots i:nth-child(1) { background: #ff5f57; }
+    .dots i:nth-child(2) { background: #febc2e; }
+    .dots i:nth-child(3) { background: #28c840; }
+    .url { flex: 1; padding: 3px 8px; border-radius: 6px; background: #fff; color: #444; font-size: 12px; }
+    .page { position: relative; height: 280px; overflow: hidden; background: #f6f7f9; }
+    .banner { padding: 12px 14px; border-bottom: 1px solid #e6e6e6; }
+    .skeleton { display: flex; flex-direction: column; gap: 8px; padding: 16px; }
+    .skeleton span { display: block; height: 8px; border-radius: 4px; background: #e4e4e4; }
+    .skeleton span:nth-child(1) { width: 42%; height: 12px; }
+    .skeleton span:nth-child(2) { width: 90%; }
+    .skeleton span:nth-child(3) { width: 74%; }
+    .skeleton span:nth-child(4) { width: 58%; }
+
+    @keyframes drop-in { from { transform: translateY(-8px); opacity: 0; } to { transform: none; opacity: 1; } }
+    @keyframes rise-in { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
+    @keyframes slide-in { from { transform: translateX(12px); opacity: 0; } to { transform: none; opacity: 1; } }
+    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+    .format-push .notice, .format-pinned-push .notice, .format-banner .banner { animation: drop-in 0.4s ease; }
+    .format-action-sheet .sheet { animation: rise-in 0.4s ease; }
+    .format-toast .toast { animation: slide-in 0.4s ease; }
+    .format-dialog .dialog, .format-modal .dialog { animation: fade-in 0.3s ease; }
 
     @media (prefers-reduced-motion: reduce) {
       .token { transition: none !important; }
+      .notice, .sheet, .banner, .toast, .dialog { animation: none !important; }
     }
   </style>
 </head>
 <body>
   <main>
     <h1>Bridge pattern</h1>
-    <p class="lede">Press a notification type. The dot follows <code>display()</code>: the type prepares a request, the selected channel renders it, and a presentation comes back.</p>
+    <p class="lede">Press a notification type. The dot follows <code>display()</code>: the type prepares a request, the selected channel renders it, and the picture below is that presentation on the device.</p>
     <div class="controls">
       <span>Channel</span>
       <button class="choice" type="button" data-channel="desktop" aria-pressed="false">Desktop</button>
@@ -189,6 +444,11 @@
       <button class="choice" type="button" data-channel="web" aria-pressed="true">Web</button>
     </div>
     <p class="status" id="status" role="status">Choose a type on the diagram.</p>
+    <ul class="legend">
+      <li><i class="swatch used" aria-hidden="true"></i> In this call</li>
+      <li><i class="swatch here" aria-hidden="true"></i> Current step</li>
+      <li><i class="swatch aside" aria-hidden="true"></i> Not used</li>
+    </ul>
     <div class="stage-wrap">
       <div class="stage" id="stage">
         <svg class="wires" id="wires" aria-hidden="true"></svg>
@@ -253,14 +513,7 @@ changeChannel()</code>
         <div class="token" id="token" hidden></div>
       </div>
     </div>
-    <div class="preview" id="preview" hidden>
-      <article class="mock">
-        <p class="meta" id="preview-meta"></p>
-        <p id="preview-title"><strong></strong></p>
-        <p id="preview-body"></p>
-        <div class="actions" id="preview-actions"></div>
-      </article>
-    </div>
+    <div class="preview" id="preview" hidden></div>
   </main>
   <script>
     const content = {
@@ -310,6 +563,21 @@ changeChannel()</code>
       web: { informative: "toast", persistent: "banner", blocking: "modal" }
     };
 
+    const icons = {
+      desktop: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 20h8M12 16v4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
+      mobile: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="7" y="2.5" width="10" height="19" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M10 18.5h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
+      web: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M3 8.5h18" stroke="currentColor" stroke-width="1.7"/><circle cx="6" cy="6.3" r="0.8" fill="currentColor"/><circle cx="8.6" cy="6.3" r="0.8" fill="currentColor"/></svg>'
+    };
+
+    document.querySelectorAll("[data-channel]").forEach((button) => {
+      const mark = document.createElement("span");
+      mark.className = "mark";
+      mark.setAttribute("aria-hidden", "true");
+      mark.innerHTML = icons[button.dataset.channel];
+      if (button.classList.contains("node")) button.querySelector("strong").prepend(mark);
+      else button.prepend(mark);
+    });
+
     const stage = document.querySelector("#stage");
     const wires = document.querySelector("#wires");
     const token = document.querySelector("#token");
@@ -317,15 +585,16 @@ changeChannel()</code>
     const preview = document.querySelector("#preview");
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let channel = "web";
+    let chosenType = null;
+    let hereId = null;
     let runId = 0;
 
     document.querySelectorAll("[data-channel]").forEach((button) => {
       button.addEventListener("click", () => {
         channel = button.dataset.channel;
-        document.querySelectorAll(".choice").forEach((choice) => {
-          choice.setAttribute("aria-pressed", String(choice.dataset.channel === channel));
-        });
-        draw();
+        syncPressed();
+        if (chosenType) play(chosenType);
+        else paint();
       });
     });
 
@@ -333,91 +602,154 @@ changeChannel()</code>
       button.addEventListener("click", () => play(button.dataset.type));
     });
 
-    window.addEventListener("resize", () => {
-      fit();
-      draw();
-    });
-    fit();
     draw();
-
-    function fit() {
-      const wrap = document.querySelector(".stage-wrap");
-      const scale = Math.min(1, wrap.clientWidth / stage.offsetWidth);
-      stage.style.transform = "scale(" + scale + ")";
-      stage.style.transformOrigin = "top left";
-      wrap.style.height = Math.ceil(stage.offsetHeight * scale) + "px";
-    }
+    new ResizeObserver(() => draw()).observe(document.querySelector(".stage-wrap"));
 
     function box(id) {
-      const node = document.getElementById(id);
+      const rect = document.getElementById(id).getBoundingClientRect();
+      const origin = stage.getBoundingClientRect();
       return {
-        left: node.offsetLeft,
-        top: node.offsetTop,
-        right: node.offsetLeft + node.offsetWidth,
-        bottom: node.offsetTop + node.offsetHeight,
-        cx: node.offsetLeft + node.offsetWidth / 2,
-        cy: node.offsetTop + node.offsetHeight / 2
+        left: rect.left - origin.left,
+        top: rect.top - origin.top,
+        right: rect.right - origin.left,
+        bottom: rect.bottom - origin.top,
+        cx: rect.left - origin.left + rect.width / 2,
+        cy: rect.top - origin.top + rect.height / 2
       };
     }
 
-    function line(x1, y1, x2, y2, dashed) {
+    function line(points, dashed, kind, id) {
       const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-      const mid = x1 + (x2 - x1) / 2;
-      path.setAttribute("d", "M " + x1 + " " + y1 + " L " + mid + " " + y1 + " L " + mid + " " + y2 + " L " + x2 + " " + y2);
-      path.setAttribute("fill", "none");
-      path.setAttribute("stroke", "#2a2a2a");
-      path.setAttribute("stroke-width", "1.5");
+      path.setAttribute("d", points.map((point, index) => (index === 0 ? "M " : "L ") + point[0] + " " + point[1]).join(" "));
+      path.dataset.kind = kind;
+      if (id) path.dataset.id = id;
       if (dashed) path.setAttribute("stroke-dasharray", "5 5");
       return path;
     }
 
+    function elbow(x1, y1, x2, y2) {
+      const mid = x1 + (x2 - x1) / 2;
+      return [[x1, y1], [mid, y1], [mid, y2], [x2, y2]];
+    }
+
     function draw() {
+      const bounds = stage.getBoundingClientRect();
       wires.replaceChildren();
-      wires.setAttribute("viewBox", "0 0 " + stage.offsetWidth + " " + stage.offsetHeight);
+      wires.setAttribute("viewBox", "0 0 " + bounds.width + " " + bounds.height);
+      wires.setAttribute("preserveAspectRatio", "none");
       const notification = box("notification");
       const channelBox = box("channel");
       ["message", "alert", "warning", "confirmation"].forEach((id) => {
         const child = box(id);
-        wires.append(line(notification.right, notification.cy, child.left, child.cy, false));
+        wires.append(line(elbow(notification.right, notification.cy, child.left, child.cy), false, "inherit", id));
       });
-      wires.append(line(notification.right, notification.cy, channelBox.left, channelBox.cy, false));
+      wires.append(line(elbow(notification.right, notification.cy, channelBox.left, channelBox.cy), false, "bridge"));
       ["desktop", "mobile", "web"].forEach((id) => {
         const child = box(id);
-        wires.append(line(channelBox.right, channelBox.cy, child.left, child.cy, false));
+        wires.append(line(elbow(channelBox.right, channelBox.cy, child.left, child.cy), false, "impl", id));
       });
       const contentBox = box("content");
       const request = box("request");
       const result = box("result");
-      wires.append(line(notification.cx, notification.bottom, contentBox.cx, contentBox.top, false));
-      wires.append(line(notification.cx, notification.bottom, request.cx, request.top, true));
-      wires.append(line(channelBox.cx, channelBox.bottom, result.cx, result.top, true));
+      const gutter = (notification.right + request.left) / 2;
+      wires.append(line([[notification.cx, notification.bottom], [contentBox.cx, contentBox.top]], false, "compose"));
+      wires.append(line([
+        [notification.cx, notification.bottom],
+        [gutter, notification.bottom],
+        [gutter, request.top],
+        [request.cx, request.top]
+      ], true, "prepares"));
+      wires.append(line([
+        [channelBox.cx, channelBox.bottom],
+        [channelBox.cx, result.top],
+        [result.cx, result.top]
+      ], true, "returns"));
+      paint();
     }
 
-    function clearActive() {
-      document.querySelectorAll(".node").forEach((node) => node.classList.remove("active"));
+    function syncPressed() {
+      document.querySelectorAll(".choice, #desktop, #mobile, #web").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.channel === channel));
+      });
+      document.querySelectorAll("[data-type]").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.type === chosenType));
+      });
+    }
+
+    function wireIsOn(path) {
+      const kind = path.dataset.kind;
+      const id = path.dataset.id;
+      if (!chosenType) return kind === "impl" && id === channel;
+      if (kind === "inherit") return id === chosenType;
+      if (kind === "impl") return id === channel;
+      return kind === "bridge" || kind === "compose" || kind === "prepares" || kind === "returns";
+    }
+
+    function paint() {
+      const participants = chosenType
+        ? new Set([chosenType, "notification", "content", "request", "channel", channel, "result"])
+        : null;
+      document.querySelectorAll(".node").forEach((node) => {
+        const participating = participants ? participants.has(node.id) : false;
+        const unusedChannel = !chosenType && node.dataset.channel && node.dataset.channel !== channel;
+        node.classList.toggle("is-used", participating && node.id !== hereId);
+        node.classList.toggle("is-here", Boolean(chosenType) && node.id === hereId);
+        node.classList.toggle("is-aside", participants ? !participating : unusedChannel);
+      });
+      wires.querySelectorAll("path").forEach((path) => {
+        const on = Boolean(chosenType) && wireIsOn(path);
+        const off = chosenType
+          ? !wireIsOn(path)
+          : path.dataset.kind === "impl" && path.dataset.id !== channel;
+        path.classList.toggle("wire-on", on);
+        path.classList.toggle("wire-off", off);
+      });
+      syncPressed();
+    }
+
+    function setHere(id) {
+      hereId = id;
+      paint();
     }
 
     function wait(ms) {
       return new Promise((resolve) => setTimeout(resolve, reduceMotion ? 0 : ms));
     }
 
-    async function travel(fromId, toId) {
-      const from = box(fromId);
-      const to = box(toId);
-      const midX = from.cx + (to.cx - from.cx) / 2;
-      const points = [
-        [from.cx, from.cy],
-        [midX, from.cy],
-        [midX, to.cy],
-        [to.cx, to.cy]
-      ];
+    function findWire(kind, id) {
+      return [...wires.querySelectorAll("path")].find((path) => {
+        return path.dataset.kind === kind && (id == null || path.dataset.id === id);
+      });
+    }
+
+    function placeToken(point) {
       token.hidden = false;
       token.style.opacity = "1";
-      const animation = token.animate(
-        points.map(([x, y]) => ({ transform: "translate(" + x + "px, " + y + "px)" })),
-        { duration: reduceMotion ? 0 : 850, easing: "ease-in-out", fill: "forwards" }
-      );
-      await animation.finished;
+      token.style.transform = "translate(" + point.x + "px, " + point.y + "px)";
+    }
+
+    async function travelAlong(kind, id, reverse, run) {
+      const first = findWire(kind, id);
+      if (!first) return;
+      const duration = reduceMotion ? 0 : Math.min(1500, Math.max(750, first.getTotalLength() * 1.7));
+      const started = performance.now();
+      await new Promise((resolve) => {
+        const frame = (now) => {
+          if (run !== runId) {
+            resolve();
+            return;
+          }
+          const path = findWire(kind, id) || first;
+          const length = path.getTotalLength();
+          const progress = duration === 0 ? 1 : Math.min(1, (now - started) / duration);
+          const eased = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+          const distance = (reverse ? 1 - eased : eased) * length;
+          placeToken(path.getPointAtLength(distance));
+          if (progress < 1) requestAnimationFrame(frame);
+          else resolve();
+        };
+        requestAnimationFrame(frame);
+      });
     }
 
     function truncate(text) {
@@ -425,18 +757,122 @@ changeChannel()</code>
       return text.slice(0, 79) + "…";
     }
 
-    function showPreview(spec, format, body) {
-      preview.hidden = false;
-      document.querySelector("#preview-meta").textContent = channel + " · " + format + " · " + spec.urgency;
-      document.querySelector("#preview-title").textContent = content.title;
-      document.querySelector("#preview-body").textContent = body;
-      const actions = document.querySelector("#preview-actions");
-      actions.replaceChildren();
-      spec.actions.forEach((action) => {
-        const chip = document.createElement("span");
-        chip.textContent = action;
-        actions.append(chip);
+    function element(tag, className, text) {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text != null) node.textContent = text;
+      return node;
+    }
+
+    function actionRow(actions, stacked) {
+      const row = element("div", stacked ? "actions stack" : "actions inline");
+      actions.forEach((action, index) => {
+        row.append(element("span", index === 0 ? "action primary" : "action", action));
       });
+      return row;
+    }
+
+    function noticeCard(spec, body, pinned) {
+      const card = element("div", pinned ? "notice pinned" : "notice");
+      card.dataset.urgency = spec.urgency;
+      const top = element("div", "notice-top");
+      top.append(element("span", "app-icon", "S"));
+      top.append(element("span", "app", "Sabana"));
+      top.append(element("span", "when", pinned ? "Pinned" : "now"));
+      card.append(top, element("strong", null, content.title), element("p", null, body));
+      if (spec.actions.length) card.append(actionRow(spec.actions));
+      return card;
+    }
+
+    function skeleton() {
+      const box = element("div", "skeleton");
+      for (let line = 0; line < 4; line += 1) box.append(element("span"));
+      return box;
+    }
+
+    function buildMobile(spec, format, body) {
+      const bezel = element("div", "bezel");
+      const screen = element("div", "screen");
+      screen.append(element("div", "island"));
+      if (format === "action-sheet") {
+        const sheet = element("div", "sheet");
+        sheet.dataset.urgency = spec.urgency;
+        sheet.append(element("strong", null, content.title), element("p", null, body));
+        if (spec.actions.length) sheet.append(actionRow(spec.actions, true));
+        screen.append(element("div", "scrim"), sheet);
+      } else {
+        screen.append(noticeCard(spec, body, format === "pinned-push"));
+      }
+      screen.append(element("div", "home"));
+      bezel.append(screen);
+      return bezel;
+    }
+
+    function buildDesktop(spec, format, body) {
+      const wrap = element("div", "desktop");
+      const screen = element("div", "screen");
+      const bar = element("div", "menu-bar");
+      bar.append(element("span", null, "Notifications"), element("span", null, "Fri 9:41"));
+      const wall = element("div", "wallpaper");
+      wall.append(element("div", "window"), element("div", "window small"));
+      screen.append(bar, wall);
+      if (format === "notification-center") {
+        const panel = element("aside", "center");
+        panel.append(element("p", "center-label", "Notification Center"), noticeCard(spec, body, true));
+        screen.append(panel);
+      } else if (format === "dialog") {
+        const dialog = element("div", "dialog");
+        dialog.dataset.urgency = spec.urgency;
+        dialog.append(element("strong", null, content.title), element("p", null, body));
+        if (spec.actions.length) dialog.append(actionRow(spec.actions));
+        screen.append(element("div", "scrim"), dialog);
+      } else {
+        const toast = noticeCard(spec, body, false);
+        toast.classList.add("toast");
+        screen.append(toast);
+      }
+      const monitor = element("div", "monitor");
+      monitor.append(screen);
+      wrap.append(monitor, element("div", "neck"), element("div", "base"));
+      return wrap;
+    }
+
+    function buildWeb(spec, format, body) {
+      const browser = element("div", "browser");
+      const chrome = element("div", "chrome");
+      const dots = element("span", "dots");
+      dots.append(element("i"), element("i"), element("i"));
+      chrome.append(dots, element("span", "url", "campus.unisabana.edu.co"));
+      const page = element("div", "page");
+      if (format === "banner") {
+        const banner = element("div", "banner");
+        banner.dataset.urgency = spec.urgency;
+        banner.append(element("strong", null, content.title), element("p", null, body));
+        if (spec.actions.length) banner.append(actionRow(spec.actions));
+        page.append(banner, skeleton());
+      } else if (format === "modal") {
+        const dialog = element("div", "dialog");
+        dialog.dataset.urgency = spec.urgency;
+        dialog.append(element("strong", null, content.title), element("p", null, body));
+        if (spec.actions.length) dialog.append(actionRow(spec.actions));
+        page.append(skeleton(), element("div", "scrim"), dialog);
+      } else {
+        const toast = noticeCard(spec, body, false);
+        toast.classList.add("toast");
+        page.append(skeleton(), toast);
+      }
+      browser.append(chrome, page);
+      return browser;
+    }
+
+    function showPreview(spec, format, body) {
+      const figure = element("figure", "device device-" + channel + " format-" + format);
+      const screen = channel === "mobile"
+        ? buildMobile(spec, format, body)
+        : channel === "desktop" ? buildDesktop(spec, format, body) : buildWeb(spec, format, body);
+      figure.append(screen, element("figcaption", null, channelName() + " · " + format));
+      preview.replaceChildren(figure);
+      preview.hidden = false;
     }
 
     async function play(typeId) {
@@ -445,36 +881,48 @@ changeChannel()</code>
       const format = formats[channel][spec.mode];
       const fullBody = spec.body(content.message);
       const visibleBody = truncate(fullBody);
-      clearActive();
+      chosenType = typeId;
+      hereId = typeId;
       preview.hidden = true;
       document.querySelector("#request-body").textContent = "type, urgency, mode, body, actions";
       document.querySelector("#result-body").textContent = "channel, format, rendered";
       document.querySelector("#content-body").textContent = content.title;
 
       status.textContent = "new " + spec.name + "(content, new " + channelName() + "()).display()";
-      document.getElementById(typeId).classList.add("active");
+      paint();
+      const entry = findWire("inherit", typeId);
+      if (entry) placeToken(entry.getPointAtLength(entry.getTotalLength()));
       if (id !== runId) return;
-      await travel(typeId, "request");
+      await travelAlong("inherit", typeId, true, id);
       if (id !== runId) return;
-      document.getElementById("request").classList.add("active");
+      setHere("notification");
+      status.textContent = "display() on Notification";
+      await travelAlong("prepares", null, false, id);
+      if (id !== runId) return;
+      setHere("request");
       document.querySelector("#request-body").textContent =
         spec.type + "\n" + spec.urgency + " · " + spec.mode + "\nactions: " + (spec.actions.join(", ") || "(none)");
       status.textContent = "prepare() builds the request";
-      await wait(500);
+      await wait(800);
       if (id !== runId) return;
 
-      document.getElementById("notification").classList.add("active");
-      await travel("request", "channel");
+      await travelAlong("prepares", null, true, id);
       if (id !== runId) return;
-      document.getElementById("channel").classList.add("active");
-      document.getElementById(channel).classList.add("active");
+      await travelAlong("bridge", null, false, id);
+      if (id !== runId) return;
+      setHere("channel");
+      await travelAlong("impl", channel, false, id);
+      if (id !== runId) return;
+      setHere(channel);
       status.textContent = "present() on " + channelName();
-      await wait(400);
+      await wait(600);
       if (id !== runId) return;
 
-      await travel("channel", "result");
+      await travelAlong("impl", channel, true, id);
       if (id !== runId) return;
-      document.getElementById("result").classList.add("active");
+      await travelAlong("returns", null, false, id);
+      if (id !== runId) return;
+      setHere("result");
       document.querySelector("#result-body").textContent = channel + "\n" + format;
       showPreview(spec, format, visibleBody);
       status.textContent = "Presentation returned: " + format;

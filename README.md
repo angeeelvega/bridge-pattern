@@ -53,6 +53,10 @@ The type chooses urgency, mode, and actions. The channel turns that contract int
 
 Source: [`docs/class-diagram.dot`](docs/class-diagram.dot). A PNG copy is at [`docs/class-diagram.png`](docs/class-diagram.png). Open [`docs/behavior.html`](docs/behavior.html) to play a type through the bridge.
 
+![AlertNotification displayed on the web channel](docs/alert-web.gif)
+
+`AlertNotification` on `WebChannel`. The dot follows `display()`: the alert prepares the request, the channel renders it, and the banner stays visible.
+
 ## Layout
 
 ```
