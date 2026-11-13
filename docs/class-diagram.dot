@@ -1,0 +1,121 @@
+digraph Bridge {
+  graph [
+    bgcolor=white
+    pad=0.5
+    splines=true
+    fontname="Helvetica"
+    label="Bridge pattern — class diagram"
+    labelloc=t
+    fontsize=18
+  ]
+  node [shape=plaintext fontname="Helvetica" fontsize=12]
+  edge [fontname="Helvetica" fontsize=11 color="#222222"]
+
+  Message [pos="160,700!" label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5">
+      <TR><TD BGCOLOR="#F3F3F3"><FONT POINT-SIZE="10"><I>«RefinedAbstraction»</I></FONT><BR/><B>MessageNotification</B></TD></TR>
+      <TR><TD ALIGN="LEFT">+ TYPE = "message"<BR/>+ type() : String<BR/># prepare(content) : PresentationRequest</TD></TR>
+    </TABLE>>]
+  Alert [pos="520,700!" label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5">
+      <TR><TD BGCOLOR="#F3F3F3"><FONT POINT-SIZE="10"><I>«RefinedAbstraction»</I></FONT><BR/><B>AlertNotification</B></TD></TR>
+      <TR><TD ALIGN="LEFT">+ TYPE = "alert"<BR/>+ type() : String<BR/># prepare(content) : PresentationRequest</TD></TR>
+    </TABLE>>]
+  Warning [pos="880,700!" label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5">
+      <TR><TD BGCOLOR="#F3F3F3"><FONT POINT-SIZE="10"><I>«RefinedAbstraction»</I></FONT><BR/><B>WarningNotification</B></TD></TR>
+      <TR><TD ALIGN="LEFT">+ TYPE = "warning"<BR/>+ type() : String<BR/># prepare(content) : PresentationRequest</TD></TR>
+    </TABLE>>]
+  Confirmation [pos="1280,700!" label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5">
+      <TR><TD BGCOLOR="#F3F3F3"><FONT POINT-SIZE="10"><I>«RefinedAbstraction»</I></FONT><BR/><B>ConfirmationNotification</B></TD></TR>
+      <TR><TD ALIGN="LEFT">+ TYPE = "confirmation"<BR/>+ type() : String<BR/># prepare(content) : PresentationRequest</TD></TR>
+    </TABLE>>]
+
+  Desktop [pos="1780,700!" label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5">
+      <TR><TD BGCOLOR="#F3F3F3"><FONT POINT-SIZE="10"><I>«ConcreteImplementor»</I></FONT><BR/><B>DesktopChannel</B></TD></TR>
+      <TR><TD ALIGN="LEFT">+ NAME = "desktop"<BR/>+ name() : String<BR/># formatFor(mode) : String</TD></TR>
+    </TABLE>>]
+  Mobile [pos="2140,700!" label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5">
+      <TR><TD BGCOLOR="#F3F3F3"><FONT POINT-SIZE="10"><I>«ConcreteImplementor»</I></FONT><BR/><B>MobileChannel</B></TD></TR>
+      <TR><TD ALIGN="LEFT">+ NAME = "mobile"<BR/>+ BODY_LIMIT = 80<BR/># adaptBody(body : String) : String</TD></TR>
+    </TABLE>>]
+  Web [pos="2480,700!" label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5">
+      <TR><TD BGCOLOR="#F3F3F3"><FONT POINT-SIZE="10"><I>«ConcreteImplementor»</I></FONT><BR/><B>WebChannel</B></TD></TR>
+      <TR><TD ALIGN="LEFT">+ NAME = "web"<BR/>+ name() : String<BR/># formatFor(mode) : String</TD></TR>
+    </TABLE>>]
+
+  Notification [pos="720,360!" label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5">
+      <TR><TD BGCOLOR="#E8E8E8"><FONT POINT-SIZE="10"><I>«Abstraction»</I></FONT><BR/><B><I>Notification</I></B></TD></TR>
+      <TR><TD ALIGN="LEFT">- content : NotificationContent<BR/>- channel : PresentationChannel<BR/>+ display() : Presentation<BR/>+ changeChannel(channel : PresentationChannel)<BR/>+ {abstract} type() : String<BR/># {abstract} prepare(content) : PresentationRequest</TD></TR>
+    </TABLE>>]
+  Channel [pos="2140,360!" label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5">
+      <TR><TD BGCOLOR="#E8E8E8"><FONT POINT-SIZE="10"><I>«Implementor»</I></FONT><BR/><B><I>PresentationChannel</I></B></TD></TR>
+      <TR><TD ALIGN="LEFT">+ present(request : PresentationRequest) : Presentation<BR/>+ {abstract} name() : String<BR/># {abstract} formatFor(mode : InteractionMode) : String<BR/># adaptBody(body : String) : String</TD></TR>
+    </TABLE>>]
+
+  Content [pos="280,40!" label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5">
+      <TR><TD BGCOLOR="#F3F3F3"><FONT POINT-SIZE="10"><I>«record»</I></FONT><BR/><B>NotificationContent</B></TD></TR>
+      <TR><TD ALIGN="LEFT">+ title : String<BR/>+ message : String<BR/>+ recipient : String</TD></TR>
+    </TABLE>>]
+  Request [pos="760,20!" label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5">
+      <TR><TD BGCOLOR="#F3F3F3"><FONT POINT-SIZE="10"><I>«record»</I></FONT><BR/><B>PresentationRequest</B></TD></TR>
+      <TR><TD ALIGN="LEFT">+ type : String<BR/>+ urgency : UrgencyLevel<BR/>+ mode : InteractionMode<BR/>+ title : String<BR/>+ body : String<BR/>+ recipient : String<BR/>+ actions : List</TD></TR>
+    </TABLE>>]
+  Result [pos="1960,10!" label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5">
+      <TR><TD BGCOLOR="#F3F3F3"><FONT POINT-SIZE="10"><I>«record»</I></FONT><BR/><B>Presentation</B></TD></TR>
+      <TR><TD ALIGN="LEFT">+ channel : String<BR/>+ format : String<BR/>+ urgency : UrgencyLevel<BR/>+ mode : InteractionMode<BR/>+ visibleTitle : String<BR/>+ visibleBody : String<BR/>+ actions : List<BR/>+ rendered : String</TD></TR>
+    </TABLE>>]
+  Urgency [pos="640,-210!" label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5">
+      <TR><TD BGCOLOR="#EFEFEF"><FONT POINT-SIZE="10">«enumeration»</FONT><BR/><B>UrgencyLevel</B></TD></TR>
+      <TR><TD ALIGN="LEFT">LOW<BR/>MEDIUM<BR/>HIGH</TD></TR>
+    </TABLE>>]
+  Mode [pos="920,-210!" label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5">
+      <TR><TD BGCOLOR="#EFEFEF"><FONT POINT-SIZE="10">«enumeration»</FONT><BR/><B>InteractionMode</B></TD></TR>
+      <TR><TD ALIGN="LEFT">INFORMATIVE<BR/>PERSISTENT<BR/>BLOCKING</TD></TR>
+    </TABLE>>]
+
+  Message -> Notification [arrowhead=onormal]
+  Alert -> Notification [arrowhead=onormal]
+  Warning -> Notification [arrowhead=onormal]
+  Confirmation -> Notification [arrowhead=onormal]
+
+  Desktop -> Channel [arrowhead=onormal]
+  Mobile -> Channel [arrowhead=onormal]
+  Web -> Channel [arrowhead=onormal]
+
+  Notification -> Channel [
+    dir=both
+    arrowtail=odiamond
+    arrowhead=none
+    label="bridge"
+    taillabel="*"
+    headlabel="1"
+    constraint=false
+  ]
+
+  Notification -> Content [
+    dir=both
+    arrowtail=diamond
+    arrowhead=none
+    taillabel="1"
+    headlabel="1"
+    constraint=false
+  ]
+  Notification -> Request [style=dashed arrowhead=open label="prepares" constraint=false]
+  Channel -> Result [style=dashed arrowhead=open label="returns" constraint=false]
+  Request -> Urgency [arrowhead=open]
+  Request -> Mode [arrowhead=open constraint=false]
+  Result -> Urgency [arrowhead=open constraint=false]
+  Result -> Mode [arrowhead=open constraint=false]
+}
