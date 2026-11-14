@@ -21,12 +21,12 @@ public final class NotificationApplication {
 
     public static void main(String[] args) {
         NotificationContent content = new NotificationContent(
-                "Scheduled maintenance",
-                "The academic service will be unavailable tonight between 11 p.m. and 1 a.m. Save your work before then.",
+                "Mantenimiento programado",
+                "El servicio académico no estará disponible esta noche, entre las 11 p. m. y la 1 a. m. Guarda tu trabajo antes.",
                 "students@unisabana.edu.co"
         );
 
-        System.out.println("=== The same alert changes channel at runtime ===");
+        System.out.println("=== La misma alerta cambia de canal en tiempo de ejecución ===");
         Notification alert = new AlertNotification(content, new DesktopChannel());
         print(alert.display());
         alert.changeChannel(new MobileChannel());
@@ -34,7 +34,7 @@ public final class NotificationApplication {
         alert.changeChannel(new WebChannel());
         print(alert.display());
 
-        System.out.println("=== Four types share a single web channel ===");
+        System.out.println("=== Los cuatro tipos comparten un solo canal web ===");
         PresentationChannel web = new WebChannel();
         List<Notification> types = List.of(
                 new MessageNotification(content, web),

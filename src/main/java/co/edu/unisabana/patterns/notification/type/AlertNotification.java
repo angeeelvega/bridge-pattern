@@ -28,7 +28,7 @@ public final class AlertNotification extends Notification {
                 content,
                 UrgencyLevel.HIGH,
                 InteractionMode.PERSISTENT,
-                content.message() + " This alert stays visible until it is addressed.",
+                content.message() + " Esta alerta sigue visible hasta que la atiendas.",
                 List.of()
         );
     }

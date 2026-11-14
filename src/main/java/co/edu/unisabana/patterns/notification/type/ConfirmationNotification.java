@@ -29,7 +29,7 @@ public final class ConfirmationNotification extends Notification {
                 UrgencyLevel.MEDIUM,
                 InteractionMode.BLOCKING,
                 content.message(),
-                List.of("Accept", "Cancel")
+                List.of("Aceptar", "Cancelar")
         );
     }
 }

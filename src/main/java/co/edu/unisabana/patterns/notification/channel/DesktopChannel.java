@@ -34,13 +34,13 @@ public final class DesktopChannel extends PresentationChannel {
             List<String> actions
     ) {
         return """
-                Desktop notification center
-                format: %s
-                priority: %s
-                to: %s
+                Centro de notificaciones de escritorio
+                formato: %s
+                prioridad: %s
+                para: %s
                 %s
                 %s
-                actions: %s
+                acciones: %s
                 """.formatted(
                 format,
                 request.urgency().label(),

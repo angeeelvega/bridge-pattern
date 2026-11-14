@@ -34,13 +34,13 @@ public final class WebChannel extends PresentationChannel {
             List<String> actions
     ) {
         return """
-                Web channel
-                format: %s
-                class: notification notification--%s
-                to: %s
+                Canal web
+                formato: %s
+                clase: notification notification--%s
+                para: %s
                 %s
                 %s
-                actions: %s
+                acciones: %s
                 """.formatted(
                 format,
                 request.urgency().label(),

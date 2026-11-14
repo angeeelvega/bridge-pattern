@@ -48,7 +48,7 @@ public abstract class PresentationChannel {
 
     protected final String visibleActions(List<String> actions) {
         if (actions.isEmpty()) {
-            return "(none)";
+            return "(ninguna)";
         }
         return String.join(", ", actions);
     }

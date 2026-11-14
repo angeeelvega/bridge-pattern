@@ -62,11 +62,11 @@ class NotificationBridgeTest {
         assertEquals(UrgencyLevel.HIGH, alert.urgency());
         assertEquals(InteractionMode.PERSISTENT, alert.mode());
         assertEquals(DesktopChannel.FORMAT_CENTER, alert.format());
-        assertTrue(alert.visibleBody().endsWith("This alert stays visible until it is addressed."));
+        assertTrue(alert.visibleBody().endsWith("Esta alerta sigue visible hasta que la atiendas."));
 
         assertEquals(UrgencyLevel.MEDIUM, warning.urgency());
-        assertEquals(List.of("Got it"), warning.actions());
-        assertTrue(warning.visibleBody().contains("Review the consequences"));
+        assertEquals(List.of("Entendido"), warning.actions());
+        assertTrue(warning.visibleBody().contains("Revisa las consecuencias"));
     }
 
     @Test
@@ -76,7 +76,7 @@ class NotificationBridgeTest {
         Presentation mobile = new ConfirmationNotification(content, new MobileChannel()).display();
         Presentation web = new ConfirmationNotification(content, new WebChannel()).display();
 
-        assertEquals(List.of("Accept", "Cancel"), desktop.actions());
+        assertEquals(List.of("Aceptar", "Cancelar"), desktop.actions());
         assertEquals(desktop.actions(), mobile.actions());
         assertEquals(desktop.actions(), web.actions());
         assertEquals(InteractionMode.BLOCKING, desktop.mode());
@@ -107,7 +107,7 @@ class NotificationBridgeTest {
     void mobileTruncatesTheBodyAndDesktopKeepsIt() {
         String longMessage = "a".repeat(120);
         NotificationContent content = new NotificationContent("Notice", longMessage, "ana");
-        String alertBody = longMessage + " This alert stays visible until it is addressed.";
+        String alertBody = longMessage + " Esta alerta sigue visible hasta que la atiendas.";
 
         Presentation desktop = new AlertNotification(content, new DesktopChannel()).display();
         Presentation mobile = new AlertNotification(content, new MobileChannel()).display();

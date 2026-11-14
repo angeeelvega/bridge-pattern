@@ -43,12 +43,12 @@ public final class MobileChannel extends PresentationChannel {
             List<String> actions
     ) {
         return """
-                Mobile push
-                format: %s
-                badge: %s
-                to: %s
+                Notificación móvil
+                formato: %s
+                insignia: %s
+                para: %s
                 %s — %s
-                actions: %s
+                acciones: %s
                 """.formatted(
                 format,
                 request.urgency().label(),

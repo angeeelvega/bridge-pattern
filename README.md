@@ -15,7 +15,6 @@ Bridge separa esas dos partes. La notificación decide qué decir y qué tan urg
 | Menos clases | 4 tipos + 3 canales = 7 clases, no 12. |
 | Cambiar la plataforma en tiempo de ejecución | `changeChannel` reemplaza el canal. El contenido sigue igual. |
 
-
 ## Roles
 
 | Rol del patrón | Clase |
@@ -36,9 +35,19 @@ El tipo elige la urgencia, el modo y las acciones. El canal convierte ese contra
 
 Fuente: [`docs/class-diagram.dot`](docs/class-diagram.dot). Hay una copia PNG en [`docs/class-diagram.png`](docs/class-diagram.png). Abre [`docs/behavior.html`](docs/behavior.html) para ver cómo un tipo cruza el puente.
 
+## Demos
+
+### Canal web
+
 ![AlertNotification en el canal web](docs/alert-web.gif)
 
-`AlertNotification` en `WebChannel`. El punto sigue `display()`: la alerta prepara la petición, el canal la dibuja y la franja se queda visible.
+### Canal móvil
+
+![AlertNotification en el canal móvil](docs/alert-mobile.gif)
+
+### Canal de escritorio
+
+![AlertNotification en el canal de escritorio](docs/alert-desktop.gif)
 
 ## Estructura
 

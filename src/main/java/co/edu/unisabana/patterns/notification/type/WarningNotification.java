@@ -28,8 +28,8 @@ public final class WarningNotification extends Notification {
                 content,
                 UrgencyLevel.MEDIUM,
                 InteractionMode.PERSISTENT,
-                content.message() + " Review the consequences before you continue.",
-                List.of("Got it")
+                content.message() + " Revisa las consecuencias antes de continuar.",
+                List.of("Entendido")
         );
     }
 }
