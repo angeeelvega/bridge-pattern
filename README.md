@@ -1,63 +1,61 @@
-# Design patterns activity — exercise 2
+# Actividad de patrones de diseño — punto 2
 
-Java 21. Structural **Bridge** for notifications rendered on desktop, mobile, and web.
+Java 21. Patrón estructural **Bridge** para avisos que se muestran en escritorio, celular y web.
 
-## How the guide maps to patterns
+## Cómo se reparte la guía
 
-| Exercise | Problem | Category | Pattern |
+| Punto | Problema | Categoría | Patrón |
 | --- | --- | --- | --- |
-| 1 | Telescoping constructor for a car | Creational | Builder (already done) |
-| 2 | One subclass for every type and platform | **Structural** | **Bridge** |
-| 3 | Every chat user knows every other user | Behavioral | Mediator |
+| 1 | Constructor telescópico de un carro | Creacional | Builder (ya está hecho) |
+| 2 | Una subclase por cada tipo y cada plataforma | **Estructural** | **Bridge** |
+| 3 | Cada usuario del chat conoce a todos los demás | De comportamiento | Mediator |
 
-This repository implements exercise 2. Builder already fills the creational slot, so Bridge fills the structural one.
+Este repositorio hace el punto 2. Builder ya ocupa el lugar creacional, así que Bridge ocupa el estructural.
 
-## Why Bridge
+## Por qué Bridge
 
-The scenario asks for four notification types (message, alert, warning, confirmation) on three platforms. Inheritance produces one class per pair:
+Hay dos cosas que cambian por su cuenta: el tipo de aviso (mensaje, alerta, advertencia o confirmación) y el lugar donde se muestra (escritorio, celular o web). Si cada combinación fuera una clase, harían falta doce, y cada tipo o plataforma nueva obligaría a crear varias más.
 
-`4 types × 3 platforms = 12 subclasses`, and every new platform or type multiplies the rest.
+Bridge separa esas dos partes. La notificación decide qué decir y qué tan urgente es. El canal solo lo dibuja en su plataforma. Así se agrega un tipo o un canal sin tocar el otro, y un mismo aviso puede pasar de la web al celular sin crear otra clase.
 
-The benefits required by the guide match the Bridge intent (GoF): decouple an abstraction from its implementation so the two can vary independently.
-
-| Required benefit | How the code does it |
+| Lo que pide la guía | Cómo lo hace el código |
 | --- | --- |
-| Separate the notification from the medium | `Notification` defines the meaning. `PresentationChannel` only renders. |
-| Add a platform or a type without touching the rest | A new type extends `Notification`. A new channel extends `PresentationChannel`. Neither imports the concrete classes on the other side. |
-| Fewer classes | 4 types + 3 channels = 7 classes, not 12. |
-| Change the platform at runtime | `changeChannel` replaces the implementor. The content stays the same. |
+| Separar el aviso del medio | `Notification` define el significado. `PresentationChannel` solo lo dibuja. |
+| Agregar una plataforma o un tipo sin tocar el resto | Un tipo nuevo extiende `Notification`. Un canal nuevo extiende `PresentationChannel`. Ninguno importa las clases concretas del otro lado. |
+| Menos clases | 4 tipos + 3 canales = 7 clases, no 12. |
+| Cambiar la plataforma en tiempo de ejecución | `changeChannel` reemplaza el canal. El contenido sigue igual. |
 
-Other candidates:
+Otros patrones que no encajan:
 
-- **Strategy** (behavioral) varies only the rendering algorithm. Here the type also has its own behavior: urgency, interaction mode, and actions.
-- **Adapter** (structural) wraps an existing incompatible interface. There is none.
-- **Abstract Factory** (creational) would build a family per platform and would not let an existing notification change channel. Exercise 1 already used the creational slot.
+- **Strategy** (de comportamiento) solo cambiaría la forma de dibujar. Aquí el tipo también tiene su propio comportamiento: urgencia, modo de interacción y acciones.
+- **Adapter** (estructural) envuelve una interfaz que ya existe y no coincide con la nuestra. Aquí no hay ninguna.
+- **Abstract Factory** (creacional) armaría una familia por plataforma y no dejaría cambiar el canal de un aviso que ya existe. El punto 1 ya usó el lugar creacional.
 
 ## Roles
 
-| GoF role | Class |
+| Rol del patrón | Clase |
 | --- | --- |
-| Abstraction | `Notification` |
-| Refined Abstraction | `MessageNotification`, `AlertNotification`, `WarningNotification`, `ConfirmationNotification` |
-| Implementor | `PresentationChannel` |
-| Concrete Implementor | `DesktopChannel`, `MobileChannel`, `WebChannel` |
-| Bridge contract | `PresentationRequest` |
+| Abstracción | `Notification` |
+| Abstracción refinada | `MessageNotification`, `AlertNotification`, `WarningNotification`, `ConfirmationNotification` |
+| Implementador | `PresentationChannel` |
+| Implementador concreto | `DesktopChannel`, `MobileChannel`, `WebChannel` |
+| Contrato del puente | `PresentationRequest` |
 
-The type chooses urgency, mode, and actions. The channel turns that contract into its own format. The same blocking mode is a dialog on desktop, an action sheet on mobile, and a modal on the web. Mobile also truncates the body to 80 characters. Desktop and web keep it.
+El tipo elige la urgencia, el modo y las acciones. El canal convierte ese contrato en su propio formato. El mismo modo bloqueante es un diálogo en el escritorio, una hoja de acciones en el celular y un modal en la web. El celular además corta el texto a 80 caracteres. Escritorio y web lo dejan completo.
 
-## Class diagram
+## Diagrama de clases
 
-`Notification` is the abstraction. `PresentationChannel` is the implementor. The aggregation between them is the bridge: one notification keeps one channel, and `changeChannel` replaces it at runtime. `PresentationRequest` is the only contract that crosses that link.
+`Notification` es la abstracción. `PresentationChannel` es el implementador. La agregación entre las dos es el puente: un aviso guarda un canal, y `changeChannel` lo reemplaza en tiempo de ejecución. `PresentationRequest` es el único contrato que cruza ese enlace.
 
-![Bridge class diagram](docs/class-diagram.svg)
+![Diagrama de clases del patrón Bridge](docs/class-diagram.svg)
 
-Source: [`docs/class-diagram.dot`](docs/class-diagram.dot). A PNG copy is at [`docs/class-diagram.png`](docs/class-diagram.png). Open [`docs/behavior.html`](docs/behavior.html) to play a type through the bridge.
+Fuente: [`docs/class-diagram.dot`](docs/class-diagram.dot). Hay una copia PNG en [`docs/class-diagram.png`](docs/class-diagram.png). Abre [`docs/behavior.html`](docs/behavior.html) para ver cómo un tipo cruza el puente.
 
-![AlertNotification displayed on the web channel](docs/alert-web.gif)
+![AlertNotification en el canal web](docs/alert-web.gif)
 
-`AlertNotification` on `WebChannel`. The dot follows `display()`: the alert prepares the request, the channel renders it, and the banner stays visible.
+`AlertNotification` en `WebChannel`. El punto sigue `display()`: la alerta prepara la petición, el canal la dibuja y el banner se queda visible.
 
-## Layout
+## Estructura
 
 ```
 src/main/java/co/edu/unisabana/patterns/notification
@@ -68,11 +66,11 @@ src/main/java/co/edu/unisabana/patterns/notification
 └── model/
 ```
 
-`model` holds the records and enums of the contract. It is not a second pattern.
+`model` guarda los registros y los enums del contrato. No es un segundo patrón.
 
-## Run
+## Cómo ejecutarlo
 
-Requires JDK 21. On this machine:
+Hace falta JDK 21. En esta máquina:
 
 ```bash
 export JAVA_HOME=/opt/homebrew/opt/openjdk@21
