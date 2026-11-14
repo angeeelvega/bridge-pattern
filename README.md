@@ -2,34 +2,19 @@
 
 Java 21. Patrón estructural **Bridge** para avisos que se muestran en escritorio, celular y web.
 
-## Cómo se reparte la guía
-
-| Punto | Problema | Categoría | Patrón |
-| --- | --- | --- | --- |
-| 1 | Constructor telescópico de un carro | Creacional | Builder (ya está hecho) |
-| 2 | Una subclase por cada tipo y cada plataforma | **Estructural** | **Bridge** |
-| 3 | Cada usuario del chat conoce a todos los demás | De comportamiento | Mediator |
-
-Este repositorio hace el punto 2. Builder ya ocupa el lugar creacional, así que Bridge ocupa el estructural.
-
 ## Por qué Bridge
 
 Hay dos cosas que cambian por su cuenta: el tipo de aviso (mensaje, alerta, advertencia o confirmación) y el lugar donde se muestra (escritorio, celular o web). Si cada combinación fuera una clase, harían falta doce, y cada tipo o plataforma nueva obligaría a crear varias más.
 
 Bridge separa esas dos partes. La notificación decide qué decir y qué tan urgente es. El canal solo lo dibuja en su plataforma. Así se agrega un tipo o un canal sin tocar el otro, y un mismo aviso puede pasar de la web al celular sin crear otra clase.
 
-| Lo que pide la guía | Cómo lo hace el código |
+| Ejercicio | Cómo lo hace el código |
 | --- | --- |
 | Separar el aviso del medio | `Notification` define el significado. `PresentationChannel` solo lo dibuja. |
 | Agregar una plataforma o un tipo sin tocar el resto | Un tipo nuevo extiende `Notification`. Un canal nuevo extiende `PresentationChannel`. Ninguno importa las clases concretas del otro lado. |
 | Menos clases | 4 tipos + 3 canales = 7 clases, no 12. |
 | Cambiar la plataforma en tiempo de ejecución | `changeChannel` reemplaza el canal. El contenido sigue igual. |
 
-Otros patrones que no encajan:
-
-- **Strategy** (de comportamiento) solo cambiaría la forma de dibujar. Aquí el tipo también tiene su propio comportamiento: urgencia, modo de interacción y acciones.
-- **Adapter** (estructural) envuelve una interfaz que ya existe y no coincide con la nuestra. Aquí no hay ninguna.
-- **Abstract Factory** (creacional) armaría una familia por plataforma y no dejaría cambiar el canal de un aviso que ya existe. El punto 1 ya usó el lugar creacional.
 
 ## Roles
 
