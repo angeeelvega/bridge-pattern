@@ -38,7 +38,7 @@ Fuente: [`docs/class-diagram.dot`](docs/class-diagram.dot). Hay una copia PNG en
 
 ![AlertNotification en el canal web](docs/alert-web.gif)
 
-`AlertNotification` en `WebChannel`. El punto sigue `display()`: la alerta prepara la petición, el canal la dibuja y el banner se queda visible.
+`AlertNotification` en `WebChannel`. El punto sigue `display()`: la alerta prepara la petición, el canal la dibuja y la franja se queda visible.
 
 ## Estructura
 

@@ -517,8 +517,8 @@ changeChannel()</code>
   </main>
   <script>
     const content = {
-      title: "Scheduled maintenance",
-      message: "The academic service will be unavailable tonight between 11 p.m. and 1 a.m. Save your work before then.",
+      title: "Mantenimiento programado",
+      message: "El servicio académico no estará disponible esta noche, entre las 11 p. m. y la 1 a. m. Guarda tu trabajo antes.",
       recipient: "students@unisabana.edu.co"
     };
 
@@ -537,22 +537,22 @@ changeChannel()</code>
         urgency: "high",
         mode: "persistent",
         actions: [],
-        body: (message) => message + " This alert stays visible until it is addressed."
+        body: (message) => message + " Esta alerta sigue visible hasta que la atiendas."
       },
       warning: {
         name: "WarningNotification",
         type: "warning",
         urgency: "medium",
         mode: "persistent",
-        actions: ["Got it"],
-        body: (message) => message + " Review the consequences before you continue."
+        actions: ["Entendido"],
+        body: (message) => message + " Revisa las consecuencias antes de continuar."
       },
       confirmation: {
         name: "ConfirmationNotification",
         type: "confirmation",
         urgency: "medium",
         mode: "blocking",
-        actions: ["Accept", "Cancel"],
+        actions: ["Aceptar", "Cancelar"],
         body: (message) => message
       }
     };
@@ -778,7 +778,7 @@ changeChannel()</code>
       const top = element("div", "notice-top");
       top.append(element("span", "app-icon", "S"));
       top.append(element("span", "app", "Sabana"));
-      top.append(element("span", "when", pinned ? "Pinned" : "now"));
+      top.append(element("span", "when", pinned ? "Fijada" : "ahora"));
       card.append(top, element("strong", null, content.title), element("p", null, body));
       if (spec.actions.length) card.append(actionRow(spec.actions));
       return card;
@@ -812,13 +812,13 @@ changeChannel()</code>
       const wrap = element("div", "desktop");
       const screen = element("div", "screen");
       const bar = element("div", "menu-bar");
-      bar.append(element("span", null, "Notifications"), element("span", null, "Fri 9:41"));
+      bar.append(element("span", null, "Avisos"), element("span", null, "Vie 9:41"));
       const wall = element("div", "wallpaper");
       wall.append(element("div", "window"), element("div", "window small"));
       screen.append(bar, wall);
       if (format === "notification-center") {
         const panel = element("aside", "center");
-        panel.append(element("p", "center-label", "Notification Center"), noticeCard(spec, body, true));
+        panel.append(element("p", "center-label", "Centro de notificaciones"), noticeCard(spec, body, true));
         screen.append(panel);
       } else if (format === "dialog") {
         const dialog = element("div", "dialog");
@@ -870,7 +870,7 @@ changeChannel()</code>
       const screen = channel === "mobile"
         ? buildMobile(spec, format, body)
         : channel === "desktop" ? buildDesktop(spec, format, body) : buildWeb(spec, format, body);
-      figure.append(screen, element("figcaption", null, channelName() + " · " + format));
+      figure.append(screen, element("figcaption", null, channelName() + " · " + formatLabel(format)));
       preview.replaceChildren(figure);
       preview.hidden = false;
     }
@@ -896,13 +896,13 @@ changeChannel()</code>
       await travelAlong("inherit", typeId, true, id);
       if (id !== runId) return;
       setHere("notification");
-      status.textContent = "display() on Notification";
+      status.textContent = "display() en Notification";
       await travelAlong("prepares", null, false, id);
       if (id !== runId) return;
       setHere("request");
       document.querySelector("#request-body").textContent =
-        spec.type + "\n" + spec.urgency + " · " + spec.mode + "\nactions: " + (spec.actions.join(", ") || "(none)");
-      status.textContent = "prepare() builds the request";
+        labelFor(spec.type) + "\n" + labelFor(spec.urgency) + " · " + labelFor(spec.mode) + "\nacciones: " + (spec.actions.join(", ") || "(ninguna)");
+      status.textContent = "prepare() arma la petición";
       await wait(800);
       if (id !== runId) return;
 
@@ -914,7 +914,7 @@ changeChannel()</code>
       await travelAlong("impl", channel, false, id);
       if (id !== runId) return;
       setHere(channel);
-      status.textContent = "present() on " + channelName();
+      status.textContent = "present() en " + channelName();
       await wait(600);
       if (id !== runId) return;
 
@@ -923,9 +923,37 @@ changeChannel()</code>
       await travelAlong("returns", null, false, id);
       if (id !== runId) return;
       setHere("result");
-      document.querySelector("#result-body").textContent = channel + "\n" + format;
+      document.querySelector("#result-body").textContent = channel + "\n" + formatLabel(format);
       showPreview(spec, format, visibleBody);
-      status.textContent = "Presentation returned: " + format;
+      status.textContent = "Se devolvió la presentación: " + formatLabel(format);
+    }
+
+    function labelFor(value) {
+      const labels = {
+        message: "mensaje",
+        alert: "alerta",
+        warning: "advertencia",
+        confirmation: "confirmación",
+        low: "baja",
+        medium: "media",
+        high: "alta",
+        informative: "informativo",
+        persistent: "persistente",
+        blocking: "bloqueante",
+        toast: "aviso",
+        "notification-center": "centro de notificaciones",
+        dialog: "diálogo",
+        push: "notificación",
+        "pinned-push": "notificación fijada",
+        "action-sheet": "hoja de acciones",
+        banner: "franja",
+        modal: "ventana"
+      };
+      return labels[value] || value;
+    }
+
+    function formatLabel(format) {
+      return labelFor(format);
     }
 
     function channelName() {
